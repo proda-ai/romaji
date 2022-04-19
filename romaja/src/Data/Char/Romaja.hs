@@ -5,6 +5,8 @@ module Data.Char.Romaja
     , romajanize
     , romajanizeChar
     , decomposeKoreanSyllableChar
+    , romajanizeConsonant
+    , ConsonantPos(..)
     ) where
 
 import Data.Char
@@ -71,9 +73,9 @@ romajanizeConsonant 'ㅊ' Final   = "t"
 romajanizeConsonant 'ㅋ' _       = "k"
 romajanizeConsonant 'ㅌ' _       = "t"
 romajanizeConsonant 'ㅍ' _       = "p"
-romajanizeConsonant 'ㅎ' _       = "h"
-romajanizeConsonant 'ㅎ' _       = "t"
-romajanizeConsonant  c    _     = [c]
+romajanizeConsonant 'ㅎ' Initial = "h"
+romajanizeConsonant 'ㅎ' Final   = "t"
+romajanizeConsonant  c  _       = [c]
 
 isLatinChar :: Char -> Bool
 isLatinChar = isLatin1

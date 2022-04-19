@@ -30,6 +30,10 @@ main = hspec $ do
     isLatinChar '년' `shouldBe` False
   it "Decomposes Korean syllable character 한" $
     decomposeKoreanSyllableChar '한' `shouldBe` "ㅎㅏㄴ"
+  it "Romajanize initial consonant ㅃ" $
+    romajanizeConsonant 'ㅃ' Initial `shouldBe` "pp"
+  it "Romajanize final consonant ㅇ" $
+    romajanizeConsonant 'ㅇ' Final `shouldBe` "ng"
   describe "Correctly romanizes vowels" $
     checkCharacterRomanization ['ㅏ','ㅐ','ㅑ','ㅒ','ㅓ','ㅔ','ㅕ','ㅖ','ㅗ','ㅘ','ㅙ','ㅚ','ㅛ','ㅜ','ㅝ','ㅞ','ㅟ','ㅠ','ㅡ','ㅢ','ㅣ']
                                ["a", "ae", "ya", "yae", "eo", "e", "yeo", "ye", "o", "wa", "wae", "oe", "yo", "u", "wo", "we", "wi", "yu", "eu", "ui", "i"]
