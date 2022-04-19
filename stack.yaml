@@ -1,0 +1,8 @@
+resolver: lts-18.10
+#resolver:
+#  url: https://raw.githubusercontent.com/commercialhaskell/stackage-snapshots/master/lts/19/4.yaml
+
+packages:
+- romaji
+- romaja
+- pinyin
