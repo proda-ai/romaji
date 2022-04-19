@@ -25,7 +25,7 @@ source-repository head
 
 library
   exposed-modules:
-      Lib
+      Data.Char.Romaja
   other-modules:
       Paths_romaja
   hs-source-dirs:
@@ -55,6 +55,9 @@ test-suite romaja-test
       test
   ghc-options: -threaded -rtsopts -with-rtsopts=-N
   build-depends:
-      base >=4.7 && <5
+      QuickCheck
+    , base >=4.7 && <5
+    , hspec
+    , hspec-expectations
     , romaja
   default-language: Haskell2010

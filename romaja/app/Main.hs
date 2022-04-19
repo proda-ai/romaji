@@ -1,6 +1,6 @@
 module Main where
 
-import Lib
+import Data.Char.Romaja
 
 main :: IO ()
-main = someFunc
+main = return ()
