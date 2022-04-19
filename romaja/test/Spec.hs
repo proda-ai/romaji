@@ -24,6 +24,8 @@ main = hspec $ do
     isLatinChar '년' `shouldBe` False
   it "Should romanize Korean character" $
     romajanize "항" `shouldBe` "hang"
+  it "Should correctly romanize example" $
+    romajanize "한국어" `shouldBe` "hangug-eo"
   prop "Romanizes any Korean text" $
     \(Korean txt) -> forM_ (romajanize txt) (`shouldSatisfy` isLatinChar)
 
