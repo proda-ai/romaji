@@ -1,6 +1,7 @@
+{-# LANGUAGE PartialTypeSignatures #-} -- Dev only
 module Main where
 
-import Control.Monad(forM_)
+import Control.Monad(forM_, zipWithM_, when)
 import Test.Hspec
 import Test.Hspec.QuickCheck
 import Test.Hspec.Expectations
@@ -13,17 +14,38 @@ newtype Korean = Korean String
 instance Arbitrary Korean where
   arbitrary = undefined
 
+checkCharacterRomanization :: [Char] -> [String] -> _
+checkCharacterRomanization = zipWithM_ checkRomajanizeChar
+
+checkRomajanizeChar :: Char -> String -> _
+checkRomajanizeChar kc lc = it ("Romanizes " <> [kc] <> " as " <> show lc)
+                          $ romajanizeChar kc `shouldBe` lc
+
 
 main :: IO ()
 main = hspec $ do
   it "Detects Korean character" $
     isKoreanChar '년' `shouldBe` True
-  it "Detects Latin character" $
+  it "Detects 년 is not latin character" $
     isLatinChar '년' `shouldBe` False
-  it "Detects Latin character" $
-    isLatinChar '년' `shouldBe` False
+  it "Decomposes Korean syllable character 한" $
+    decomposeKoreanSyllableChar '한' `shouldBe` "ㅎㅏㄴ"
+  describe "Correctly romanizes vowels" $
+    checkCharacterRomanization ['ㅏ','ㅐ','ㅑ','ㅒ','ㅓ','ㅔ','ㅕ','ㅖ','ㅗ','ㅘ','ㅙ','ㅚ','ㅛ','ㅜ','ㅝ','ㅞ','ㅟ','ㅠ','ㅡ','ㅢ','ㅣ']
+                               ["a", "ae", "ya", "yae", "eo", "e", "yeo", "ye", "o", "wa", "wae", "oe", "yo", "u", "wo", "we", "wi", "yu", "eu", "ui", "i"]
+  describe "Correctly romanizes initial consonants" $
+    checkCharacterRomanization ['ㄱ', 'ㄲ', 'ㄴ', 'ㄷ', 'ㄸ', 'ㄹ', 'ㅁ', 'ㅂ', 'ㅃ', 'ㅅ', 'ㅆ', 'ㅇ', 'ㅈ', 'ㅉ', 'ㅊ', 'ㅋ', 'ㅌ', 'ㅍ', 'ㅎ']
+                               ["g", "kk", "n", "d", "tt", "r", "m", "b", "pp", "s", "ss", "–", "j", "jj", "ch", "k", "t", "p", "h"]
   it "Should romanize Korean character" $
     romajanize "항" `shouldBe` "hang"
+  it "Correctly romanizes a name 정석민" $
+    romajanize "정석민" `shouldBe` "Jeong Seokmin"
+  it "Correctly romanizes a name  최빛나" $
+    romajanize "최빛나" `shouldBe` "Choe Bitna"
+  it "Correctly romanizes a phonological change of ㄱ, ㄷ, ㅂ and ㅈ are adjacent to ㅎ" $
+    romajanize "좋고" `shouldBe` "joko"
+  it "Correctly romanizes aspirated sound when ㅎ follows ㄱ, ㄷ and ㅂ" $
+    romajanize "묵호" `shouldBe` "Mukho"
   it "Should correctly romanize example" $
     romajanize "한국어" `shouldBe` "hangug-eo"
   prop "Romanizes any Korean text" $
