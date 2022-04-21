@@ -90,6 +90,7 @@ romajanizeVowel 'ㅝ' = "wo"
 romajanizeVowel 'ㅟ' = "wi"
 romajanizeVowel 'ㅞ' = "we"
 romajanizeVowel 'ㅢ' = "ui"
+romajanizeVowel  c   = [c]
 
 
 -- | Position of the Korean consonant withing syllable character.
@@ -228,6 +229,9 @@ isLatinChar = isLatin1
 romajanizeChar :: Char -> String
 romajanizeChar c | isKoreanSyllableChar c = romajanizeKoreanSyllable c
 romajanizeChar c | isHangulJamo         c = romajanizeJamo           c
+romajanizeChar c                          = case romajanizeVowel c of
+                                              [c]   -> romajanizeConsonant Initial c
+                                              other -> other
 romajanizeChar c                          =                         [c] -- pass through
 
 -- | Romajanize Korean characters in the String.
