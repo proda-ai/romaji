@@ -10,6 +10,7 @@ module Data.Char.Romaja
     ) where
 
 import Data.Char
+import Data.Maybe(maybeToList)
 
 import Debug.Trace
 
@@ -17,7 +18,7 @@ traceIt :: Show a => [Char] -> a -> a
 traceIt msg val = trace (msg <> " " <> show val) val 
 
 isKoreanChar :: Char -> Bool
-isKoreanChar c = (ord c >= 0x1100 && ord c <= 0x11FF) -- Hangul Jamo
+isKoreanChar c = isHangulJamo c -- Hangul Jamo
               || (ord c >= 0x3130 && ord c <= 0x318F) -- Hangul extended Jamo
               || (ord c >= 0xA960 && ord c <= 0xA97F) -- Hangul extended Jamo A
               || (ord c >= 0xD7B0 && ord c <= 0xD7FF) -- Hangul extended Jamo B
@@ -26,6 +27,11 @@ isKoreanChar c = (ord c >= 0x1100 && ord c <= 0x11FF) -- Hangul Jamo
               || (ord c >= 0xFFA0 && ord c <= 0xFFDC) -- Half-width Hangul compatibility
               || isKoreanSyllableChar c -- Hangul syllables
 
+-- | Is it standard Hangul Jamo?
+isHangulJamo :: Char -> Bool
+isHangulJamo c = ord c >= 0x1100 && ord c <= 0x11FF
+
+-- | Is it precomposed Hangul syllable?
 isKoreanSyllableChar  :: Char -> Bool
 isKoreanSyllableChar c = ord c >= 0xAC00 && ord c <= 0xD7A3 -- Hangul syllables
 
@@ -51,18 +57,40 @@ decomposeKoreanSyllableChar c = (initialChar, medialChar, finalChar)
 -- | Take a Korean syllable Jamo and romanize it.
 --   Non-Korean characters should pass through.
 romajanizeKoreanSyllable :: Char -> String
-romajanizeKoreanSyllable | koreanSyllableCharacter c =
+romajanizeKoreanSyllable c | koreanSyllableCharacter c =
     mconcat 
       [romajanizeConsonant Initial initial
-      ,romajanizeVowel             medial]
+      ,romajanizeVowel             medial
       ,maybe ""
       (romajanizeConsonant Final)  final ]
   where
     (initial, medial, final) = decomposeKoreanSyllableChar c
+romajanizeKoreanSyllable c = [c] -- pass through
 
 -- | Romanize Korean vowel character.
 romajanizeVowel :: Char -> String
-romajanizeVowel c = undefined
+romajanizeVowel 'ㅏ' = "a"
+romajanizeVowel 'ㅓ' = "eo"
+romajanizeVowel 'ㅗ' = "o"
+romajanizeVowel 'ㅜ' = "u"
+romajanizeVowel 'ㅡ' = "eu"
+romajanizeVowel 'ㅣ' = "i"
+romajanizeVowel 'ㅐ' = "ae"
+romajanizeVowel 'ㅔ' = "e"
+romajanizeVowel 'ㅑ' = "ya"
+romajanizeVowel 'ㅕ' = "yeo"
+romajanizeVowel 'ㅛ' = "yo"
+romajanizeVowel 'ㅠ' = "yu"
+romajanizeVowel 'ㅒ' = "yae"
+romajanizeVowel 'ㅖ' = "ye"
+romajanizeVowel 'ㅘ' = "wa"
+romajanizeVowel 'ㅚ' = "oe"
+romajanizeVowel 'ㅙ' = "wae"
+romajanizeVowel 'ㅝ' = "wo"
+romajanizeVowel 'ㅟ' = "wi"
+romajanizeVowel 'ㅞ' = "we"
+romajanizeVowel 'ㅢ' = "ui"
+
 
 -- | Position of the Korean consonant withing syllable character.
 data ConsonantPos = Initial | Final
@@ -70,7 +98,7 @@ data ConsonantPos = Initial | Final
 -- | Take a consonant and position, and return a romanization of it.
 --   Other characters are let pass through.
 romajanizeConsonant :: ConsonantPos -> Char -> String
-romajanizeConsonant Initial 'ㄱ' =  
+romajanizeConsonant Initial 'ㄱ' = "g" 
 romajanizeConsonant Final   'ㄱ' = "k"
 romajanizeConsonant Initial 'ㄲ' = "kk"
 romajanizeConsonant Final   'ㄲ' = "k"
@@ -105,13 +133,13 @@ romajanizeConsonant Initial 'ㅎ' = "h"
 romajanizeConsonant Final   'ㅎ' = "t"
 romajanizeConsonant _        c  = [c]
 
--- | Romajanize modern Jamo
+-- | Romajanize modern composable Jamos
 --
 --   Modern Jamo character set distinguishes between initial
 --   and final vowels. A knowledgeable Korean implementor
 --   could use it to make romaja conversion without using
 --   @ConsonantPos datatype, but I am too scared that I get it wrong.
-romajanizeModernJamo :: Char -> String
+romajanizeJamo :: Char -> String
 -- Initial consonant Jamos
 romajanizeJamo 'ᄀ' = romajanizeConsonant Initial 'ㄱ'
 romajanizeJamo 'ᄁ' = romajanizeConsonant Initial 'ㄲ'
@@ -166,10 +194,29 @@ romajanizeJamo 'ᇀ' = romajanizeConsonant Final 'ㅌ'
 romajanizeJamo 'ᇁ' = romajanizeConsonant Final 'ㅍ'
 romajanizeJamo 'ᇂ' = romajanizeConsonant Final 'ㅎ'
 -- Medial vowel Jamos
--- 	ᅢ	ᅣ	ᅤ	ᅥ	ᅦ	ᅧ	ᅨ	ᅩ	ᅪ	ᅫ	ᅬ	ᅭ	ᅮ	ᅯ
---	ᅰ	ᅱ	ᅲ	ᅳ	ᅴ	ᅵ
--- pass through for ancient Jamos
-romajanizeJamo other = other -- Not a Jamo, or from compatibility block
+romajanizeJamo 'ᅡ' = romajanizeVowel 'ㅏ' 
+romajanizeJamo 'ᅥ' = romajanizeVowel 'ㅓ' 
+romajanizeJamo 'ᅩ' = romajanizeVowel 'ㅗ' 
+romajanizeJamo 'ᅮ' = romajanizeVowel 'ㅜ' 
+romajanizeJamo 'ᅳ' = romajanizeVowel 'ㅡ' 
+romajanizeJamo 'ᅵ' = romajanizeVowel 'ㅣ' 
+romajanizeJamo 'ᅢ' = romajanizeVowel 'ㅐ' 
+romajanizeJamo 'ᅦ' = romajanizeVowel 'ㅔ' 
+romajanizeJamo 'ᅣ' = romajanizeVowel 'ㅑ' 
+romajanizeJamo 'ᅧ' = romajanizeVowel 'ㅕ' 
+romajanizeJamo 'ᅭ' = romajanizeVowel 'ㅛ' 
+romajanizeJamo 'ᅲ' = romajanizeVowel 'ㅠ' 
+romajanizeJamo 'ᅤ' = romajanizeVowel 'ㅒ' 
+romajanizeJamo 'ᅨ' = romajanizeVowel 'ㅖ' 
+romajanizeJamo 'ᅪ' = romajanizeVowel 'ㅘ' 
+romajanizeJamo 'ᅬ' = romajanizeVowel 'ㅚ' 
+romajanizeJamo 'ᅫ' = romajanizeVowel 'ㅙ' 
+romajanizeJamo 'ᅯ' = romajanizeVowel 'ㅝ' 
+romajanizeJamo 'ᅱ' = romajanizeVowel 'ㅟ' 
+romajanizeJamo 'ᅰ' = romajanizeVowel 'ㅞ' 
+romajanizeJamo 'ᅴ' = romajanizeVowel 'ㅢ' 
+-- pass through for ancient Jamos    
+romajanizeJamo other = [other] -- Not a Jamo, or from compatibility block
 
 -- | Check if character is from latin character subset.
 isLatinChar :: Char -> Bool
@@ -179,10 +226,12 @@ isLatinChar = isLatin1
 --
 --   Currently only syllabic characters are handled.
 romajanizeChar :: Char -> String
-romajanizeChar  = romajanizeKoreanSyllable
+romajanizeChar c | isKoreanSyllableChar c = romajanizeKoreanSyllable c
+romajanizeChar c | isHangulJamo         c = romajanizeJamo           c
+romajanizeChar c                          =                         [c] -- pass through
 
 -- | Romajanize Korean characters in the String.
 --
 --   Other characters are passed through.
 romajanize :: String -> String 
-romajanize = mconcatMap romajanizeChar
+romajanize = mconcat . map romajanizeChar
