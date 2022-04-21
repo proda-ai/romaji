@@ -17,15 +17,24 @@ import Debug.Trace
 traceIt :: Show a => [Char] -> a -> a
 traceIt msg val = trace (msg <> " " <> show val) val 
 
+-- | Modern Korean characters:
+isModernKoreanCharacter :: Char -> Bool
+isModernKoreanCharacter               c =
+                 isHangulJamo         c -- Hangul Jamo
+              || isKoreanSyllableChar c -- Hangul syllables
+
+-- | Korean characters
 isKoreanChar :: Char -> Bool
-isKoreanChar c = isHangulJamo c -- Hangul Jamo
+isKoreanChar c = isModernKoreanCharacter c
+              -- Archaic forms
               || (ord c >= 0x3130 && ord c <= 0x318F) -- Hangul extended Jamo
               || (ord c >= 0xA960 && ord c <= 0xA97F) -- Hangul extended Jamo A
               || (ord c >= 0xD7B0 && ord c <= 0xD7FF) -- Hangul extended Jamo B
+              -- Enclosed or circled
               || (ord c >= 0x3200 && ord c <= 0x321E) -- Enclosed CJK letters and months 1 (parenthesised)
               || (ord c >= 0x3260 && ord c <= 0x327F) -- Enclosed CJK letters and months 2 (circled)
+              -- Half-width
               || (ord c >= 0xFFA0 && ord c <= 0xFFDC) -- Half-width Hangul compatibility
-              || isKoreanSyllableChar c -- Hangul syllables
 
 -- | Is it standard Hangul Jamo?
 isHangulJamo :: Char -> Bool
@@ -103,7 +112,7 @@ romajanizeConsonant Initial 'ㄱ' = "g"
 romajanizeConsonant Final   'ㄱ' = "k"
 romajanizeConsonant Initial 'ㄲ' = "kk"
 romajanizeConsonant Final   'ㄲ' = "k"
-romajanizeConsonant _       'ㄴ' = "k"
+romajanizeConsonant _       'ㄴ' = "n"
 romajanizeConsonant Initial 'ㄷ' = "d"
 romajanizeConsonant Final   'ㄷ' = "t"
 romajanizeConsonant Initial 'ㄸ' = "tt"
@@ -222,6 +231,59 @@ romajanizeJamo other = [other] -- Not a Jamo, or from compatibility block
 -- | Check if character is from latin character subset.
 isLatinChar :: Char -> Bool
 isLatinChar = isLatin1
+
+-- | Look at a pair of final consonant and the following initial consonant.
+--
+--   Implement phonological change for the pair if necessary.
+--   Pass both consonants to the usual romanization algorithm otherwise. 
+phonology :: Char -- final consonant of previous syllable
+          -> Char -- initial consonant of the following syllable
+          -> String -- romanized _pair_
+phonology 'ㄱ' 'ㅇ' = "g"
+phonology 'ㄱ' 'ㄴ' = "ngn"
+phonology 'ㄱ' 'ㄹ' = "ngn"
+phonology 'ㄱ' 'ㅁ' = "ngm"
+phonology 'ㄱ' 'ㅎ' = "kh" -- "k"
+phonology 'ㄴ' 'ㄹ' = "nn"
+phonology 'ㄷ' 'ㅇ' = "d" -- "j"
+phonology 'ㄷ' 'ㄴ' = "nn"
+phonology 'ㄷ' 'ㄹ' = "nn"
+phonology 'ㄷ' 'ㅁ' = "nm"
+phonology 'ㄷ' 'ㅎ' = "th" -- "t", "ch"
+phonology 'ㄹ' 'ㅇ' = "r"
+phonology 'ㅁ' 'ㄹ' = "mn"
+phonology 'ㅂ' 'ㅇ' = "b"
+phonology 'ㅂ' 'ㄴ' = "mn"
+phonology 'ㅂ' 'ㄹ' = "mn"
+phonology 'ㅂ' 'ㅁ' = "mm"
+phonology 'ㅂ' 'ㅎ' = "ph" -- "p"
+phonology 'ㅅ' 'ㅇ' = "s"
+phonology 'ㅅ' 'ㄴ' = "nn"
+phonology 'ㅅ' 'ㄹ' = "nn"
+phonology 'ㅅ' 'ㅁ' = "nm"
+phonology 'ㅇ' 'ㄹ' = "ngn"
+phonology 'ㅈ' 'ㅇ' = "j"
+phonology 'ㅈ' 'ㄴ' = "nn"
+phonology 'ㅈ' 'ㄹ' = "nn"
+phonology 'ㅈ' 'ㅁ' = "nm"
+phonology 'ㅈ' 'ㅎ' = "th" -- "t", "ch"
+phonology 'ㅊ' 'ㅇ' = "ch"
+phonology 'ㅊ' 'ㄴ' = "nn"
+phonology 'ㅊ' 'ㄹ' = "nn"
+phonology 'ㅊ' 'ㅁ' = "nm"
+phonology 'ㅊ' 'ㅎ' = "th" -- "t", "ch"
+-- A bit off the bea"en trac"
+phonology 'ㅎ' 'ㅇ' = "h"
+phonology 'ㅎ' 'ㄱ' = "k"
+phonology 'ㅎ' 'ㄴ' = "nn"
+phonology 'ㅎ' 'ㄷ' = "t"
+phonology 'ㅎ' 'ㄹ' = "nn"
+phonology 'ㅎ' 'ㅁ' = "nm"
+phonology 'ㅎ' 'ㅂ' = "p"
+phonology 'ㅎ' 'ㅈ' = "ch"
+phonology 'ㅎ' 'ㅌ' = "t"
+phonology a   b   = romajanizeConsonant Final   a
+                 <> romajanizeConsonant Initial b
 
 -- | Romanize Korean character.
 --
