@@ -9,13 +9,19 @@ module Data.Char.Romaja
     , ConsonantPos(..)
     ) where
 
-import Data.Char
-import Data.Maybe(maybeToList)
+import           Data.Char
+import           Data.Maybe          (maybeToList)
+import qualified Data.Text  as T
+import           Data.Text.Normalize (normalize, NormalizationMode(NFC))
 
-import Debug.Trace
+--import Debug.Trace
 
 traceIt :: Show a => [Char] -> a -> a
 traceIt msg val = trace (msg <> " " <> show val) val 
+  where
+    trace _ a = a
+
+-- * Character classes
 
 -- | Modern Korean characters:
 isModernKoreanCharacter :: Char -> Bool
@@ -26,7 +32,7 @@ isModernKoreanCharacter               c =
 -- | Korean characters
 isKoreanChar :: Char -> Bool
 isKoreanChar c = isModernKoreanCharacter c
-              -- Archaic forms
+              -- Archaic forms, Unicode 1.0 and 1.1
               || (ord c >= 0x3130 && ord c <= 0x318F) -- Hangul extended Jamo
               || (ord c >= 0xA960 && ord c <= 0xA97F) -- Hangul extended Jamo A
               || (ord c >= 0xD7B0 && ord c <= 0xD7FF) -- Hangul extended Jamo B
@@ -44,14 +50,22 @@ isHangulJamo c = ord c >= 0x1100 && ord c <= 0x11FF
 isKoreanSyllableChar  :: Char -> Bool
 isKoreanSyllableChar c = ord c >= 0xAC00 && ord c <= 0xD7A3 -- Hangul syllables
 
+-- | Is it Korean syllable character 
+koreanSyllableCharacter :: Char -> Bool
+koreanSyllableCharacter c = ord c >= 44032
+                         && ord c <= 44032 + 588*18 + 28*20+27
+
+-- * Syllable decomposition
+
 -- | Convert a Korean syllable char into a list of vowel and consonant Jamos
-decomposedKoreanSyllable :: Char -> [Char]
+--
+--   NOTE: Alternative way to implement is to use Unicode canonical decomposition,
+--         but the we also need to handle upper and lower jamos.
+decomposedKoreanSyllable  :: Char -> [Char]
 decomposedKoreanSyllable c = [initialChar, medialChar] <> maybeToList finalChar
   where
     (initialChar, medialChar, finalChar) = decomposeKoreanSyllableChar c
- 
-koreanSyllableCharacter c = ord c >= 44032
-                         && ord c <= 44032 + 588*18 + 28*20+27
+
 decomposeKoreanSyllableChar :: Char -> (Char, Char, Maybe Char)
 decomposeKoreanSyllableChar c = (initialChar, medialChar, finalChar)
   where
@@ -107,6 +121,10 @@ data ConsonantPos = Initial | Final
 
 -- | Take a consonant and position, and return a romanization of it.
 --   Other characters are let pass through.
+--
+--   TODO: Ask Korean speaker about romanization of: ㄺㄻㄼㄽㄾㄿㅀ. Same for ㄳㄵㄶㅄ
+--         Should one first decompose these into ㄹ and another final consonant?
+--         Should one apply phonological rules to these
 romajanizeConsonant :: ConsonantPos -> Char -> String
 romajanizeConsonant Initial 'ㄱ' = "g" 
 romajanizeConsonant Final   'ㄱ' = "k"
@@ -159,9 +177,9 @@ romajanizeJamo 'ᄄ' = romajanizeConsonant Initial 'ㄸ'
 romajanizeJamo 'ᄅ' = romajanizeConsonant Initial 'ㄹ'
 romajanizeJamo 'ᄆ' = romajanizeConsonant Initial 'ㅁ'
 romajanizeJamo 'ᄇ' = romajanizeConsonant Initial 'ㅂ'
-romajanizeJamo 'ᄈ' = romajanizeConsonant Initial 'ㅂ'
-romajanizeJamo 'ᄉ' = romajanizeConsonant Initial 'ㅃ'
-romajanizeJamo 'ᄊ' = romajanizeConsonant Initial 'ㅅ'
+romajanizeJamo 'ᄈ' = romajanizeConsonant Initial 'ㅃ'
+romajanizeJamo 'ᄉ' = romajanizeConsonant Initial 'ㅅ'
+romajanizeJamo 'ᄊ' = romajanizeConsonant Initial 'ㅆ'
 romajanizeJamo 'ᄋ' = romajanizeConsonant Initial 'ㅇ'
 romajanizeJamo 'ᄌ' = romajanizeConsonant Initial 'ㅈ'
 romajanizeJamo 'ᄍ' = romajanizeConsonant Initial 'ㅉ'
@@ -173,30 +191,30 @@ romajanizeJamo 'ᄒ' = romajanizeConsonant Initial 'ㅎ'
 -- Final consonant Jamos
 romajanizeJamo 'ᆨ' = romajanizeConsonant Final 'ㄱ'
 romajanizeJamo 'ᆩ' = romajanizeConsonant Final 'ㄲ'
-romajanizeJamo 'ᆪ' = romajanizeConsonant Final 'ㄱ' -- TODO: Ask So about guess on compositions
+romajanizeJamo 'ᆪ' = romajanizeConsonant Final 'ㄱ' -- TODO: Ask Korean about compositions
                    <> romajanizeConsonant Final 'ㅅ'
 romajanizeJamo 'ᆫ' = romajanizeConsonant Final 'ㄴ'
 romajanizeJamo 'ᆭ' = romajanizeConsonant Final 'ㄴ'
                    <> romajanizeConsonant Final 'ㅎ'
 romajanizeJamo 'ᆮ' = romajanizeConsonant Final 'ㄷ'
 romajanizeJamo 'ᆯ' = romajanizeConsonant Final 'ㄹ'
-romajanizeJamo 'ᆰ' = romajanizeConsonant Final 'ㄹ'
+romajanizeJamo 'ᆰ' = romajanizeConsonant Final 'ㄹ' -- TODO: Ask Korean about compositions
                    <> romajanizeConsonant Final 'ㄱ'
 romajanizeJamo 'ᆱ' = romajanizeConsonant Final 'ㄹ'
-                   <> romajanizeConsonant Final 'ㅇ'
+                   <> romajanizeConsonant Final 'ㅁ' -- TODO: Ask Korean about compositions
 romajanizeJamo 'ᆲ' = romajanizeConsonant Final 'ㄹ'
-                   <> romajanizeConsonant Final 'ㅂ'
+                   <> romajanizeConsonant Final 'ㅂ' -- TODO: Ask Korean about compositions
 romajanizeJamo 'ᆳ' = romajanizeConsonant Final 'ㄹ'
-                   <> romajanizeConsonant Final 'ㅅ'
+                   <> romajanizeConsonant Final 'ㅅ' -- TODO: Ask Korean about compositions
 romajanizeJamo 'ᆴ' = romajanizeConsonant Final 'ㄹ'
-                   <> romajanizeConsonant Final 'ㅌ'
+                   <> romajanizeConsonant Final 'ㅌ' -- TODO: Ask Korean about compositions
 romajanizeJamo 'ᆵ' = romajanizeConsonant Final 'ㄹ'
-                   <> romajanizeConsonant Final 'ㅍ'
+                   <> romajanizeConsonant Final 'ㅍ' -- TODO: Ask Korean about compositions
 romajanizeJamo 'ᆶ' = romajanizeConsonant Final 'ㄹ'
-                   <> romajanizeConsonant Final 'ㅎ'
+                   <> romajanizeConsonant Final 'ㅎ' -- TODO: Ask Korean about compositions
 romajanizeJamo 'ᆸ' = romajanizeConsonant Final 'ㅂ'
 romajanizeJamo 'ᆺ' = romajanizeConsonant Final 'ㅅ'
-romajanizeJamo 'ᆷ' = romajanizeConsonant Final 'ㅇ'
+romajanizeJamo 'ᆷ' = romajanizeConsonant Final 'ㅁ'
 romajanizeJamo 'ᆽ' = romajanizeConsonant Final 'ㅈ'
 romajanizeJamo 'ᆾ' = romajanizeConsonant Final 'ㅊ'
 romajanizeJamo 'ᆿ' = romajanizeConsonant Final 'ㅋ'
@@ -225,8 +243,8 @@ romajanizeJamo 'ᅯ' = romajanizeVowel 'ㅝ'
 romajanizeJamo 'ᅱ' = romajanizeVowel 'ㅟ' 
 romajanizeJamo 'ᅰ' = romajanizeVowel 'ㅞ' 
 romajanizeJamo 'ᅴ' = romajanizeVowel 'ㅢ' 
--- pass through for ancient Jamos    
-romajanizeJamo other = [other] -- Not a Jamo, or from compatibility block
+-- pass through for ancient Jamos
+romajanizeJamo other = [other] -- Not a Jamo, or from an unsupported block
 
 -- | Check if character is from latin character subset.
 isLatinChar :: Char -> Bool
@@ -236,6 +254,15 @@ isLatinChar = isLatin1
 --
 --   Implement phonological change for the pair if necessary.
 --   Pass both consonants to the usual romanization algorithm otherwise. 
+--
+--  NOTES:
+--
+--    * alternative way to implement phonological changes
+--      would be to use composable jamos instead,
+--      and use Unicode decomposition before processing them.
+--      This would be tricky to debug with non-Korean fonts.
+--    * some phonological changes are ambiguous
+--
 phonology :: Char -- final consonant of previous syllable
           -> Char -- initial consonant of the following syllable
           -> String -- romanized _pair_
@@ -243,13 +270,13 @@ phonology 'ㄱ' 'ㅇ' = "g"
 phonology 'ㄱ' 'ㄴ' = "ngn"
 phonology 'ㄱ' 'ㄹ' = "ngn"
 phonology 'ㄱ' 'ㅁ' = "ngm"
-phonology 'ㄱ' 'ㅎ' = "kh" -- "k"
+phonology 'ㄱ' 'ㅎ' = "kh" -- or "k"
 phonology 'ㄴ' 'ㄹ' = "nn"
-phonology 'ㄷ' 'ㅇ' = "d" -- "j"
+phonology 'ㄷ' 'ㅇ' = "d" -- or "j"
 phonology 'ㄷ' 'ㄴ' = "nn"
 phonology 'ㄷ' 'ㄹ' = "nn"
 phonology 'ㄷ' 'ㅁ' = "nm"
-phonology 'ㄷ' 'ㅎ' = "th" -- "t", "ch"
+phonology 'ㄷ' 'ㅎ' = "th" -- or "t", "ch"
 phonology 'ㄹ' 'ㅇ' = "r"
 phonology 'ㅁ' 'ㄹ' = "mn"
 phonology 'ㅂ' 'ㅇ' = "b"
@@ -272,7 +299,7 @@ phonology 'ㅊ' 'ㄴ' = "nn"
 phonology 'ㅊ' 'ㄹ' = "nn"
 phonology 'ㅊ' 'ㅁ' = "nm"
 phonology 'ㅊ' 'ㅎ' = "th" -- "t", "ch"
--- A bit off the bea"en trac"
+-- A bit off the beaten track
 phonology 'ㅎ' 'ㅇ' = "h"
 phonology 'ㅎ' 'ㄱ' = "k"
 phonology 'ㅎ' 'ㄴ' = "nn"
@@ -282,8 +309,8 @@ phonology 'ㅎ' 'ㅁ' = "nm"
 phonology 'ㅎ' 'ㅂ' = "p"
 phonology 'ㅎ' 'ㅈ' = "ch"
 phonology 'ㅎ' 'ㅌ' = "t"
-phonology a   b   = romajanizeConsonant Final   a
-                 <> romajanizeConsonant Initial b
+phonology  p   n   = romajanizeConsonant Final   p
+                  <> romajanizeConsonant Initial n
 
 -- | Romanize Korean character.
 --
@@ -301,3 +328,4 @@ romajanizeChar c                          =                         [c] -- pass 
 --   Other characters are passed through.
 romajanize :: String -> String 
 romajanize = mconcat . map romajanizeChar
+           . T.unpack . normalize NFC . T.pack -- canonicalize Unicode

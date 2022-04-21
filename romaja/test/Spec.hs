@@ -14,11 +14,17 @@ import Data.Char
 newtype ModernKoreanString = ModernKoreanString { unModernKoreanString :: String }
   deriving (Show,                Eq) via String
 
-newtype ModernKoreanChar   = ModernKoreanChar   { unModernKoreanChar   :: Char   }
-  deriving (Show, Enum, Bounded, Eq) via Char
-
+-- | The commonly used Modern Korean characters:
 -- Standard Jamo range:     0x1100 0x11FF
 -- Standard syllable range: 0xAC00 0xD7A3
+--
+-- Does not include unused to Unicode from KS X 1002 in Unicode 1.1:
+-- U+3D2E to U+44B7
+-- U+44B8 to U+44BD
+-- U+44BE to U+4DFF
+-- These were superseded by syllables block
+newtype ModernKoreanChar   = ModernKoreanChar   { unModernKoreanChar   :: Char   }
+  deriving (Show, Enum, Bounded, Eq) via Char
 
 instance Arbitrary ModernKoreanChar where
   arbitrary = do

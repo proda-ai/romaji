@@ -32,6 +32,8 @@ library
       src
   build-depends:
       base >=4.7 && <5
+    , text
+    , unicode-transforms
   default-language: Haskell2010
 
 executable romaja-exe
@@ -44,6 +46,8 @@ executable romaja-exe
   build-depends:
       base >=4.7 && <5
     , romaja
+    , text
+    , unicode-transforms
   default-language: Haskell2010
 
 test-suite romaja-test
@@ -60,4 +64,6 @@ test-suite romaja-test
     , hspec
     , hspec-expectations
     , romaja
+    , text
+    , unicode-transforms
   default-language: Haskell2010
