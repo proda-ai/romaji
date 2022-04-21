@@ -1,4 +1,5 @@
 {-# LANGUAGE PartialTypeSignatures #-} -- Dev only
+{-# LANGUAGE DerivingVia           #-}
 module Main where
 
 import Control.Monad(forM_, zipWithM_, when)
@@ -6,14 +7,34 @@ import Test.Hspec
 import Test.Hspec.QuickCheck
 import Test.Hspec.Expectations
 import Test.QuickCheck
+import Test.QuickCheck.Arbitrary(vector)
 import Data.Char.Romaja
 import Data.Char
 
-newtype Korean = Korean String
-  deriving (Show, Eq)
+newtype ModernKoreanString = ModernKoreanString { unModernKoreanString :: String }
+  deriving (Show,                Eq) via String
 
-instance Arbitrary Korean where
-  arbitrary = undefined
+newtype ModernKoreanChar   = ModernKoreanChar   { unModernKoreanChar   :: Char   }
+  deriving (Show, Enum, Bounded, Eq) via Char
+
+-- Standard Jamo range:     0x1100 0x11FF
+-- Standard syllable range: 0xAC00 0xD7A3
+
+instance Arbitrary ModernKoreanChar where
+  arbitrary = do
+    i <- choose (0, (0x11FF-0x1100)+
+                    (0xD7A3-0xAC00))
+    return $ ModernKoreanChar $ chr $
+      if i <= 0xFF
+        then 0x1100         + i
+        else 0xAC00 - 0x100 + i
+
+instance Arbitrary ModernKoreanString where
+  arbitrary = sized $ \l -> do
+    s <- choose (0, l)
+    ModernKoreanString <$>
+      (vectorOf s $
+         fmap unModernKoreanChar $ arbitrary)
 
 checkCharacterRomanization :: [Char] -> [String] -> Spec
 checkCharacterRomanization = zipWithM_ checkRomajanizeChar
@@ -50,7 +71,7 @@ main = hspec $ do
   it "Should correctly romanize composed Jamos for '밖': the 'outside'" $
     romajanize "밖" `shouldBe` "bak"
   it "Correctly romanizes a name 정석민" $
-    romajanize "정석민" `shouldBe` (toLower <$> "Jeong Seokmin")
+    romajanize "정 석민" `shouldBe` (toLower <$> "Jeong Seokmin")
   it "Correctly romanizes a name  최빛나" $
     romajanize "최빛나" `shouldBe` "choebitna"
   it "Correctly romanizes a phonological change of ㄱ, ㄷ, ㅂ and ㅈ are adjacent to ㅎ" $
@@ -62,7 +83,7 @@ main = hspec $ do
   it "Should correctly romanize a sentence" $
     romajanize "한국은 네 계절이 뚜렷하다." `shouldBe` "Hangugeun ne gyejeori tturyeotada."
   prop "Romanizes any Korean text" $
-    \(Korean txt) -> forM_ (romajanize txt) (`shouldSatisfy` isLatinChar)
+    \(ModernKoreanString txt) -> forM_ (romajanize txt) (`shouldSatisfy` isLatinChar)
 
 
 -- Example of Korean from http://columnist.org/parkk/infoage/romaniz.htm
