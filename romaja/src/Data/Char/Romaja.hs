@@ -9,17 +9,18 @@ module Data.Char.Romaja
     , ConsonantPos(..)
     ) where
 
+import           Control.Exception   (assert)
 import           Data.Char
 import           Data.Maybe          (maybeToList)
 import qualified Data.Text  as T
 import           Data.Text.Normalize (normalize, NormalizationMode(..))
 
---import Debug.Trace
+import Debug.Trace
 
 traceIt :: Show a => [Char] -> a -> a
 traceIt msg val = trace (msg <> " " <> show val) val 
-  where
-    trace _ a = a
+  {-where
+    trace _ a = a-}
 
 -- * Character classes
 
@@ -67,7 +68,11 @@ decomposedKoreanSyllable c = [initialChar, medialChar] <> maybeToList finalChar
     (initialChar, medialChar, finalChar) = decomposeKoreanSyllableChar c
 
 decomposeKoreanSyllableChar :: Char -> (Char, Char, Maybe Char)
-decomposeKoreanSyllableChar c = (initialChar, medialChar, finalChar)
+decomposeKoreanSyllableChar c = assert (           isHangulJamo initialChar)
+                              $ assert (           isHangulJamo medialChar )
+                              $ assert (maybe True isHangulJamo finalChar  )
+                              $ traceIt "decomposition"
+                              $ (initialChar, medialChar, finalChar)
   where
     (rest   , final ) = (ord c - 44032) `quotRem`            28
     (initial, medial) = rest            `quotRem` (588 `div` 28)
@@ -125,6 +130,8 @@ data ConsonantPos = Initial | Final
 --   TODO: Ask Korean speaker about romanization of: ㄺㄻㄼㄽㄾㄿㅀ. Same for ㄳㄵㄶㅄ
 --         Should one first decompose these into ㄹ and another final consonant?
 --         Should one apply phonological rules to these
+--
+--   TODO: Make standard conversion to non-composable Jamos.
 romajanizeConsonant :: ConsonantPos -> Char -> String
 romajanizeConsonant Initial 'ㄱ' = "g" 
 romajanizeConsonant Final   'ㄱ' = "k"
@@ -159,6 +166,17 @@ romajanizeConsonant _       'ㅌ' = "t"
 romajanizeConsonant _       'ㅍ' = "p"
 romajanizeConsonant Initial 'ㅎ' = "h"
 romajanizeConsonant Final   'ㅎ' = "t"
+romajanizeConsonant pos     'ㄺ' = romajanizeConsonant pos 'ㄱ'
+romajanizeConsonant pos     'ㄻ' = romajanizeConsonant pos 'ㄱ'
+romajanizeConsonant pos     'ㄿ' = romajanizeConsonant pos 'ㄱ'
+romajanizeConsonant pos     'ㄳ' = romajanizeConsonant pos 'ㄱ'
+romajanizeConsonant pos     'ㄵ' = romajanizeConsonant pos 'ㄴ'
+romajanizeConsonant pos     'ㄽ' = romajanizeConsonant pos 'ㄹ'
+romajanizeConsonant pos     'ㄼ' = romajanizeConsonant pos 'ㄹ'
+romajanizeConsonant pos     'ㄾ' = romajanizeConsonant pos 'ㄹ'
+romajanizeConsonant pos     'ㅄ' = romajanizeConsonant pos 'ㅂ'
+romajanizeConsonant pos     'ㄶ' = romajanizeConsonant pos 'ㄴ'
+romajanizeConsonant pos     'ㅀ' = romajanizeConsonant pos 'ㄹ'
 romajanizeConsonant _        c  = [c]
 
 -- | Romajanize modern composable Jamos
@@ -167,6 +185,8 @@ romajanizeConsonant _        c  = [c]
 --   and final vowels. A knowledgeable Korean implementor
 --   could use it to make romaja conversion without using
 --   @ConsonantPos datatype, but I am too scared that I get it wrong.
+--
+--   Check if the glyphs can be converted algorithmically here.
 romajanizeJamo :: Char -> String
 -- Initial consonant Jamos
 romajanizeJamo 'ᄀ' = romajanizeConsonant Initial 'ㄱ'
@@ -204,6 +224,7 @@ romajanizeJamo 'ᆴ' = romajanizeConsonant Final 'ㄹ'
 romajanizeJamo 'ᆵ' = romajanizeConsonant Final 'ㅍ'
 romajanizeJamo 'ᆶ' = romajanizeConsonant Final 'ㄹ'
 romajanizeJamo 'ᆹ' = romajanizeConsonant Final 'ㅂ'
+--romajanizeJamo 'ᇱ' = romajanizeConsonant Final 'ㅂ'
 romajanizeJamo 'ᆸ' = romajanizeConsonant Final 'ㅂ'
 romajanizeJamo 'ᆺ' = romajanizeConsonant Final 'ㅅ'
 romajanizeJamo 'ᆷ' = romajanizeConsonant Final 'ㅁ'
