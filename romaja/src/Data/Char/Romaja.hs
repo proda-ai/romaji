@@ -12,7 +12,7 @@ module Data.Char.Romaja
 import           Data.Char
 import           Data.Maybe          (maybeToList)
 import qualified Data.Text  as T
-import           Data.Text.Normalize (normalize, NormalizationMode(NFC))
+import           Data.Text.Normalize (normalize, NormalizationMode(..))
 
 --import Debug.Trace
 
@@ -320,4 +320,4 @@ romajanizeChar c                          =                         [c] -- pass 
 --   Other characters are passed through.
 romajanize :: String -> String 
 romajanize = mconcat . map romajanizeChar
-           . T.unpack . normalize NFC . T.pack -- canonicalize Unicode
+           . T.unpack . normalize NFC . normalize NFKD . T.pack -- canonicalize Unicode
