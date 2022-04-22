@@ -191,27 +191,19 @@ romajanizeJamo 'ᄒ' = romajanizeConsonant Initial 'ㅎ'
 -- Final consonant Jamos
 romajanizeJamo 'ᆨ' = romajanizeConsonant Final 'ㄱ'
 romajanizeJamo 'ᆩ' = romajanizeConsonant Final 'ㄲ'
-romajanizeJamo 'ᆪ' = romajanizeConsonant Final 'ㄱ' -- TODO: Ask Korean about compositions
-                   <> romajanizeConsonant Final 'ㅅ'
+romajanizeJamo 'ᆪ' = romajanizeConsonant Final 'ㄱ'
 romajanizeJamo 'ᆫ' = romajanizeConsonant Final 'ㄴ'
 romajanizeJamo 'ᆭ' = romajanizeConsonant Final 'ㄴ'
-                   <> romajanizeConsonant Final 'ㅎ'
 romajanizeJamo 'ᆮ' = romajanizeConsonant Final 'ㄷ'
 romajanizeJamo 'ᆯ' = romajanizeConsonant Final 'ㄹ'
-romajanizeJamo 'ᆰ' = romajanizeConsonant Final 'ㄹ' -- TODO: Ask Korean about compositions
-                   <> romajanizeConsonant Final 'ㄱ'
-romajanizeJamo 'ᆱ' = romajanizeConsonant Final 'ㄹ'
-                   <> romajanizeConsonant Final 'ㅁ' -- TODO: Ask Korean about compositions
+romajanizeJamo 'ᆰ' = romajanizeConsonant Final 'ㄱ'
+romajanizeJamo 'ᆱ' = romajanizeConsonant Final 'ㅁ'
 romajanizeJamo 'ᆲ' = romajanizeConsonant Final 'ㄹ'
-                   <> romajanizeConsonant Final 'ㅂ' -- TODO: Ask Korean about compositions
 romajanizeJamo 'ᆳ' = romajanizeConsonant Final 'ㄹ'
-                   <> romajanizeConsonant Final 'ㅅ' -- TODO: Ask Korean about compositions
 romajanizeJamo 'ᆴ' = romajanizeConsonant Final 'ㄹ'
-                   <> romajanizeConsonant Final 'ㅌ' -- TODO: Ask Korean about compositions
-romajanizeJamo 'ᆵ' = romajanizeConsonant Final 'ㄹ'
-                   <> romajanizeConsonant Final 'ㅍ' -- TODO: Ask Korean about compositions
+romajanizeJamo 'ᆵ' = romajanizeConsonant Final 'ㅍ'
 romajanizeJamo 'ᆶ' = romajanizeConsonant Final 'ㄹ'
-                   <> romajanizeConsonant Final 'ㅎ' -- TODO: Ask Korean about compositions
+romajanizeJamo 'ᆹ' = romajanizeConsonant Final 'ㅂ'
 romajanizeJamo 'ᆸ' = romajanizeConsonant Final 'ㅂ'
 romajanizeJamo 'ᆺ' = romajanizeConsonant Final 'ㅅ'
 romajanizeJamo 'ᆷ' = romajanizeConsonant Final 'ㅁ'
@@ -270,7 +262,7 @@ phonology 'ㄱ' 'ㅇ' = "g"
 phonology 'ㄱ' 'ㄴ' = "ngn"
 phonology 'ㄱ' 'ㄹ' = "ngn"
 phonology 'ㄱ' 'ㅁ' = "ngm"
-phonology 'ㄱ' 'ㅎ' = "kh" -- or "k"
+phonology 'ㄱ' 'ㅎ' = "k" -- instead of "kh"
 phonology 'ㄴ' 'ㄹ' = "nn"
 phonology 'ㄷ' 'ㅇ' = "d" -- or "j"
 phonology 'ㄷ' 'ㄴ' = "nn"
