@@ -22,6 +22,9 @@ newtype ModernKoreanString = ModernKoreanString { unModernKoreanString :: String
 -- U+3D2E to U+44B7
 -- U+44B8 to U+44BD
 -- U+44BE to U+4DFF
+--
+-- Does not include Unicode 1.0.0 from KS C 5691-1987
+-- U+3400–U+3D2D
 -- These were superseded by syllables block
 newtype ModernKoreanChar   = ModernKoreanChar   { unModernKoreanChar   :: Char   }
   deriving (Show, Enum, Bounded, Eq) via Char
@@ -48,6 +51,10 @@ checkCharacterRomanization = zipWithM_ checkRomajanizeChar
 checkRomajanizeChar :: Char -> String -> Spec
 checkRomajanizeChar kc lc = it ("Romanizes " <> [kc] <> " as " <> show lc)
                           $ romajanizeChar kc `shouldBe` lc
+
+checkRomajanize :: String -> String -> Spec
+checkRomajanize kc lc = it ("Romanizes " <> kc <> " as " <> lc)
+                      $ romajanize kc `shouldBe` lc
 
 
 main :: IO ()
@@ -76,6 +83,33 @@ main = hspec $ do
     romajanize "밖" `shouldBe` "bak"
   it "Should correctly romanize composed Jamos for '밖': the 'outside'" $
     romajanize "밖" `shouldBe` "bak"
+  describe "Double consonant examples" $ do 
+    checkRomajanize "넋"    "neok"
+    checkRomajanize "넋이"  "neoksi"
+    checkRomajanize "여덟"  "yeodeol"
+    checkRomajanize "넓은"  "neolbeun"
+    checkRomajanize "외곬"  "oegol"
+    checkRomajanize "외곬이" "oegolsi"
+    checkRomajanize "핥다"  "halda"
+    checkRomajanize "핥아"  "halta"
+    checkRomajanize "값"    "gap"
+    checkRomajanize "값이"   "gapsi"
+    checkRomajanize "않고"   "anko"
+    checkRomajanize "많이"   "manhi"
+    checkRomajanize "싫다"   "silta"
+    checkRomajanize "싫어"   "silheo"
+    checkRomajanize "닭"     "dak"
+    checkRomajanize "맑은"    "malgeun"
+    checkRomajanize "삶"     "sam"
+    checkRomajanize "짊어지다" "jilmeojida"
+    checkRomajanize "읊다"    "eupda"
+    checkRomajanize "읊어"    "eulpeo"
+    checkRomajanize "읊는"    "eumneun"
+    checkRomajanize "놓고"    "noko"
+    checkRomajanize "많다"    "manta"
+    checkRomajanize "쌓지"    "ssachi"
+    checkRomajanize "좋은"    "joeun"
+    checkRomajanize "낳은"    "naeun"
   it "Correctly romanizes a name 정석민" $
     romajanize "정 석민" `shouldBe` (toLower <$> "Jeong Seokmin")
   it "Correctly romanizes a name  최빛나" $
