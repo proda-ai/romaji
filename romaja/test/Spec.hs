@@ -110,6 +110,22 @@ main = hspec $ do
     checkRomajanize "쌓지"    "ssachi"
     checkRomajanize "좋은"    "joeun"
     checkRomajanize "낳은"    "naeun"
+    checkRomajanize "쌈짓돈"  "ssamjitdon"
+    checkRomajanize "백마"    "Baengma"
+    checkRomajanize "신문로"   "Sinmunno"
+    checkRomajanize "종로"    "Jongno"
+    checkRomajanize "왕십리"   "Wangsimni"
+    checkRomajanize "별내"    "Byeollae"
+    checkRomajanize "신라"    "Silla"
+    checkRomajanize "학여울"  "Hangnyeoul"
+    checkRomajanize "알약"    "allyak"
+    checkRomajanize "해돋이"   "haedoji"
+    checkRomajanize "같이"    "gachi"
+    checkRomajanize "맞히다"   "machida"
+    checkRomajanize "좋고"    "joko"
+    checkRomajanize "놓다"    "nota"
+    checkRomajanize "잡혀"    "japyeo"
+    checkRomajanize "낳지"    "nachi"
   it "Correctly romanizes a name 정석민" $
     romajanize "정 석민" `shouldBe` (toLower <$> "Jeong Seokmin")
   it "Correctly romanizes a name  최빛나" $
