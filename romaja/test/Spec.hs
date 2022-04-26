@@ -126,6 +126,10 @@ main = hspec $ do
     checkRomajanize "놓다"    "nota"
     checkRomajanize "잡혀"    "japyeo"
     checkRomajanize "낳지"    "nachi"
+    checkRomajanize "국민"    "gungmin"
+    checkRomajanize "먹는"    "meongneun"
+    checkRomajanize "깎는"    "kkangneun"
+    checkRomajanize "흙만"    "heungman"
   describe "Korean norms example" $ do
     describe "typical" $ do
       checkRomajanize "광희문" "Gwanghuimun"

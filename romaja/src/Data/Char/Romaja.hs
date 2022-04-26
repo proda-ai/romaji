@@ -256,6 +256,8 @@ romajanizeJamo 'ᅯ' = romajanizeVowel 'ㅝ'
 romajanizeJamo 'ᅱ' = romajanizeVowel 'ㅟ' 
 romajanizeJamo 'ᅰ' = romajanizeVowel 'ㅞ' 
 romajanizeJamo 'ᅴ' = romajanizeVowel 'ㅢ' 
+--romajanizeJamo 'ᆄ' = romajanizeVowel 'ㅕ' <> romajanizeVowel 'ㅛ'
+--romajanizeJamo '\4514' = "¨" -- double dot on top
 -- pass through for ancient Jamos
 romajanizeJamo other = [other] -- Not a Jamo, or from an unsupported block
 
