@@ -128,6 +128,7 @@ main = hspec $ do
     checkRomajanize "낳지"    "nachi"
   describe "Korean norms example" $ do
     describe "typical" $ do
+      checkRomajanize "광희문" "Gwanghuimun"
       describe "1" $ do 
         checkRomajanize "구미" "Gumi"
         checkRomajanize "영동" "Yeongdong"
@@ -191,6 +192,8 @@ main = hspec $ do
         checkRomajanize "부산" "Busan" 
         checkRomajanize "세종" "Sejong" 
       describe "4" $ do
+        checkRomajanize "민용하" "Min Yongha" -- Min Yong-ha
+        checkRomajanize "송나리" "Song Nari" -- Song Na-ri
         checkRomajanize "한복남"          "Han Boknam" -- Han Bok-nam
         checkRomajanize "홍빛나"          "Hong Bitna" -- Hong Bit-na
       describe "5" $ do 
