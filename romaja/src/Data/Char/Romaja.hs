@@ -15,12 +15,12 @@ import           Data.Maybe          (maybeToList)
 import qualified Data.Text  as T
 import           Data.Text.Normalize (normalize, NormalizationMode(..))
 
-import Debug.Trace
+--import Debug.Trace
 
 traceIt :: Show a => [Char] -> a -> a
 traceIt msg val = trace (msg <> " " <> show val) val 
-  {-where
-    trace _ a = a-}
+  where
+    trace _ a = a
 
 -- * Character classes
 

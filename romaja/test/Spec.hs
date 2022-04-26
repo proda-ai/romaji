@@ -126,6 +126,123 @@ main = hspec $ do
     checkRomajanize "놓다"    "nota"
     checkRomajanize "잡혀"    "japyeo"
     checkRomajanize "낳지"    "nachi"
+  describe "Korean norms example" $ do
+    describe "typical" $ do
+      describe "1" $ do 
+        checkRomajanize "구미" "Gumi"
+        checkRomajanize "영동" "Yeongdong"
+        checkRomajanize "백암" "Baegam"
+        checkRomajanize "옥천" "Okcheon"
+        checkRomajanize "합덕" "Hapdeok"
+        checkRomajanize "호법" "Hobeop"
+        checkRomajanize "월곶" "Wolgot"
+        checkRomajanize "벚꽃" "beotkkot"
+        checkRomajanize "한밭" "Hanbat"
+      describe "2" $ do 
+        checkRomajanize "구리"     "Guri"
+        checkRomajanize "설악"     "Seorak"
+        checkRomajanize "칠곡"     "Chilgok"
+        checkRomajanize "임실"     "Imsil"
+        checkRomajanize "울릉"     "Ulleung"
+        checkRomajanize "대관령"    "Daegwallyeong"
+    describe "exceptions" $ do
+      describe "1" $ do
+        describe "1.1" $ do
+          checkRomajanize "백마"   "Baengma"
+          checkRomajanize "신문로" "Sinmunno"
+          checkRomajanize "종로" 	"Jongno"
+          checkRomajanize "왕십리" "Wangsimni"
+          checkRomajanize "별내"	 "Byeollae"
+          checkRomajanize "신라"	 "Silla"
+        describe "1.2" $ do
+          checkRomajanize "학여울" "Hangnyeoul"
+          checkRomajanize "알약"   "allyak"
+        describe "1.3" $ do
+          checkRomajanize "해돋이" "haedoji"
+          checkRomajanize "같이"  "gachi"
+          checkRomajanize "굳히다" "guchida"
+        describe "1.4" $ do
+          checkRomajanize "좋고" "joko"
+          checkRomajanize "놓다" "nota"
+          checkRomajanize "잡혀" "japyeo"
+          checkRomajanize "낳지" "nachi"
+          describe "in square brackets" $ do 
+            checkRomajanize "조코" "joko"
+            checkRomajanize "노타" "nota"
+            checkRomajanize "자펴" "japyeo"
+            checkRomajanize "나치" "nachi"
+          describe "extended set" $ do
+            checkRomajanize "묵호" "Mukho"
+            checkRomajanize "집현전" "Jiphyeonjeon"
+            checkRomajanize "압구정" "Apgujeong"
+            checkRomajanize "낙동강" "Nakdonggang"
+            checkRomajanize "죽변"   "Jukbyeon"
+            checkRomajanize "낙성대" "Nakseongdae"
+            checkRomajanize "합정"  "Hapjeong"
+            checkRomajanize "팔당"  "Paldang"
+            checkRomajanize "샛별"  "saetbyeol"
+            checkRomajanize "울산"  "Ulsan"
+      describe "2" $ do
+        checkRomajanize "중앙"   "Jung-ang"
+        checkRomajanize "반구대" "Ban-gudae"
+        checkRomajanize "세운"   "Se-un"
+        checkRomajanize "해운대" "Hae-undae"
+      describe "3" $ do
+        checkRomajanize "부산" "Busan" 
+        checkRomajanize "세종" "Sejong" 
+      describe "4" $ do
+        checkRomajanize "한복남"          "Han Boknam" -- Han Bok-nam
+        checkRomajanize "홍빛나"          "Hong Bitna" -- Hong Bit-na
+      describe "5" $ do 
+        checkRomajanize "충청북도"          "Jeju-do"
+        checkRomajanize "제주도"          "Uijeongbu-si"
+        checkRomajanize "의정부시"          "Yangju-gun"
+        checkRomajanize "양주군"          "Dobong-gu"
+        checkRomajanize "도봉구"          "Sinchang-eup"
+        checkRomajanize "신창읍"          "Samjuk-myeon"
+        checkRomajanize "삼죽면"          "Inwang-ri"
+        checkRomajanize "인왕리"          "Dangsan-dong"
+        checkRomajanize "당산동"          "Bongcheon 1(il)-dong"
+        checkRomajanize "봉천 1동"          "Jongno 2(i)-ga"
+        checkRomajanize "종로 2가"          "Toegyero 3(sam)-ga"
+        checkRomajanize "퇴계로 3가"          "Cheongju"
+        checkRomajanize "청주시"          "Hampyeong"
+        checkRomajanize "함평군"          "Sunchang"
+        checkRomajanize "순창읍"          "Chungcheongbuk-do"
+      describe "6" $ do
+        checkRomajanize "남산"            "Namsan"
+        checkRomajanize "속리산"           "Songnisan"
+        checkRomajanize "금강"            "Geumgang"
+        checkRomajanize "독도"            "Dokdo"
+        checkRomajanize "경복궁"           "Gyeongbokgung"
+        checkRomajanize "무량수전"          "Muryangsujeon"
+        checkRomajanize "연화교"           "Yeonhwagyo"
+        checkRomajanize "극락전"           "Geungnakjeon"
+        checkRomajanize "안압지"           "Anapji"
+        checkRomajanize "남한산성"          "Namhansanseong"
+        checkRomajanize "화랑대"           "Hwarangdae"
+        checkRomajanize "불국사"           "Bulguksa"
+        checkRomajanize "현충사"           "Hyeonchungsa"
+        checkRomajanize "독립문"           "Dongnimmun"
+        checkRomajanize "오죽헌"           "Ojukheon"
+        checkRomajanize "촉석루"           "Chokseongnu"
+        checkRomajanize "종묘"            "Jongmyo"
+        checkRomajanize "다보탑"           "Dabotap"
+      describe "8" $ do 
+        checkRomajanize "집"        "jib"
+        checkRomajanize "짚"        "jip"
+        checkRomajanize "밖"        "bakk"
+        checkRomajanize "값"        "gabs"
+        checkRomajanize "붓꽃"       "buskkoch"
+        checkRomajanize "먹는"       "meogneun"
+        checkRomajanize "독립"       "doglib"
+        checkRomajanize "문리"       "munli"
+        checkRomajanize "물엿"       "mul-yeos"
+        checkRomajanize "굳이"       "gud-i"
+        checkRomajanize "좋다"       "johda"
+        checkRomajanize "가곡"       "gagog"
+        checkRomajanize "조랑말"     "jolangmal"
+        checkRomajanize "없었습니다"  "eobs-eoss-seubnida"
   it "Correctly romanizes a name 정석민" $
     romajanize "정 석민" `shouldBe` (toLower <$> "Jeong Seokmin")
   it "Correctly romanizes a name  최빛나" $
