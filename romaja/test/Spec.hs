@@ -56,6 +56,9 @@ checkRomajanize :: String -> String -> Spec
 checkRomajanize kc lc = it ("Romanizes " <> kc <> " as " <> lc)
                       $ romajanize kc `shouldBe` lc
 
+-- | For now translation is the same as romanization.
+checkTranslation kc lc = checkRomajanize kc lc
+
 
 main :: IO ()
 main = hspec $ do
@@ -264,6 +267,9 @@ main = hspec $ do
     romajanize "한국은 네 계절이 뚜렷하다." `shouldBe` "Hangugeun ne gyejeori tturyeotada."
   prop "Romanizes any Korean text" $
     \(ModernKoreanString txt) -> forM_ (romajanize txt) (`shouldSatisfy` isLatinChar)
+  describe "translation" $ do
+    it "Translates Korean company name" $ do 
+      checkTranslation "삼성화재해상보험㈜" "Samsung Fire & Marine Insurance Co., Ltd."
 
 
 -- Example of Korean from http://columnist.org/parkk/infoage/romaniz.htm

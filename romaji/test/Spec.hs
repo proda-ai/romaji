@@ -10,6 +10,9 @@ checkRomajization jp en =
   it (jp <> " is romanized to " <> en) $
     romajize jp `shouldBe` T.unpack (normalize NFD $ T.pack $ fmap toLower en)
 
+-- | For now translation and romajization are the same.
+checkTranslation jp en = checkRomajization jp en
+
 main :: IO ()
 main = hspec $ do
   describe "Wikipedia examples" $ do
@@ -21,6 +24,7 @@ main = hspec $ do
         checkRomajization "ちぢむ"   "tizimu"
         checkRomajization "つづく"   "tuzuku"
         checkRomajization "非ヘボン式ローマ字"   "hi-Hebon-shiki rōmaji"
+        checkRomajization "あっ"   "at"
     describe "Mixed Hiragana and Kanji" $ do 
         checkRomajization "結婚する"  "kekkonsuru"
   describe "monash" $ do -- https://guides.lib.monash.edu/c.php?g=922671&p=6721790
@@ -41,3 +45,5 @@ main = hspec $ do
   describe "stumbling words" $ do  -- https://nihongodera.com/tools/convert
     checkRomajization "えっと"     "e to"
     checkRomajization "あの"       "ano"
+  describe "translation" $ do
+    checkTranslation  "プルデンシャルジブラルタファイナンシャル生命保険株式会社" "Prudential Gibralta Financial Life Insurance Co., Ltd."
