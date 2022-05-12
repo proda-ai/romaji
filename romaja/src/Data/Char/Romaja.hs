@@ -4,6 +4,7 @@ module Data.Char.Romaja
     , isLatinChar
     , romajanize
     , romajanizeChar
+    , romajanizeKoreanWord
     , decomposeKoreanSyllableChar
     , romajanizeConsonant
     , ConsonantPos(..)
@@ -84,6 +85,8 @@ decomposeKoreanSyllableChar c = assert (           isHangulJamo initialChar)
 
 -- | Take a Korean syllable Jamo and romanize it.
 --   Non-Korean characters should pass through.
+--
+--   Ignores phonological changes.
 romajanizeKoreanSyllable :: Char -> String
 romajanizeKoreanSyllable c | koreanSyllableCharacter c =
     mconcat 
@@ -285,7 +288,7 @@ phonology 'ㄱ' 'ㅇ' = "g"
 phonology 'ㄱ' 'ㄴ' = "ngn"
 phonology 'ㄱ' 'ㄹ' = "ngn"
 phonology 'ㄱ' 'ㅁ' = "ngm"
-phonology 'ㄱ' 'ㅎ' = "k" -- instead of "kh"
+phonology 'ㄱ' 'ㅎ' = "kh" -- instead of "h"
 phonology 'ㄴ' 'ㄹ' = "nn"
 phonology 'ㄷ' 'ㅇ' = "d" -- or "j"
 phonology 'ㄷ' 'ㄴ' = "nn"
@@ -327,6 +330,26 @@ phonology 'ㅎ' 'ㅌ' = "t"
 phonology  p   n   = romajanizeConsonant Final   p
                   <> romajanizeConsonant Initial n
 
+-- | Romajanize a continuous string entirely in Korean alphabet.
+romajanizeKoreanWord :: String -> String
+romajanizeKoreanWord input =(          romajanizeConsonant Initial firstInitial
+                          <> mconcat  (zipWith step decomposed $ tail decomposed)
+                          <>           romajanizeVowel lastMedial
+                          <> maybe "" (romajanizeConsonant Final) lastFinal)
+  where
+    firstInitial, lastMedial :: Char
+    lastFinal :: Maybe Char
+    (_, lastMedial, lastFinal) = last decomposed 
+    decomposed :: [(Char, Char, Maybe Char)]
+    decomposed = decomposeKoreanSyllableChar <$> input
+    (firstInitial, _, _):_ = decomposed
+    step :: (Char, Char, Maybe Char) -> (Char, Char, Maybe Char) -> String
+    step (_, prevMedial, Just prevFinal) (nextInitial, _, _) =
+         romajanizeVowel prevMedial
+      <> phonology prevFinal nextInitial
+    step (_, prevMedial, Nothing)        (nextInitial, _, _) =
+      romajanizeVowel prevMedial <> romajanizeConsonant Initial nextInitial
+  
 -- | Romanize Korean character.
 --
 --   Currently only syllabic characters are handled.
@@ -338,9 +361,15 @@ romajanizeChar c                          = case romajanizeVowel c of
                                               other -> other
 romajanizeChar c                          =                         [c] -- pass through
 
+
 -- | Romajanize Korean characters in the String.
 --
 --   Other characters are passed through.
 romajanize :: String -> String 
-romajanize = mconcat . map romajanizeChar
-           . T.unpack . normalize NFC . normalize NFKD . T.pack -- canonicalize Unicode
+romajanize = mconcat . go . T.unpack . normalize NFC . normalize NFKD . T.pack -- canonicalize Unicode
+  where
+    go []                                  = []
+    go cs | isKoreanSyllableChar $ head cs = romajanizeKoreanWord aWord:go rest 
+      where
+        (aWord, rest) = span isKoreanSyllableChar cs
+    go (c:cs) = romajanizeChar c:go cs

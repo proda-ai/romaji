@@ -31,7 +31,11 @@ library
   hs-source-dirs:
       src
   build-depends:
-      base >=4.7 && <5
+      attoparsec
+    , base >=4.7 && <5
+    , bytestring
+    , text
+    , zlib
   default-language: Haskell2010
 
 executable pinyin-exe
@@ -42,8 +46,12 @@ executable pinyin-exe
       app
   ghc-options: -threaded -rtsopts -with-rtsopts=-N
   build-depends:
-      base >=4.7 && <5
+      attoparsec
+    , base >=4.7 && <5
+    , bytestring
     , pinyin
+    , text
+    , zlib
   default-language: Haskell2010
 
 test-suite pinyin-test
@@ -55,6 +63,10 @@ test-suite pinyin-test
       test
   ghc-options: -threaded -rtsopts -with-rtsopts=-N
   build-depends:
-      base >=4.7 && <5
+      attoparsec
+    , base >=4.7 && <5
+    , bytestring
     , pinyin
+    , text
+    , zlib
   default-language: Haskell2010
